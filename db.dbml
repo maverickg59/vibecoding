@@ -1,0 +1,81 @@
+//// ------------------------------------------------------ ////
+////                  DBML for Invoicing Tool                 ////
+//// ------------------------------------------------------ ////
+//// Use DBML syntax. Tools like dbdiagram.io can render this.////
+//// SQLite Data Types used (INTEGER, TEXT, REAL).          ////
+//// Timestamps are stored as INTEGER (Unix epoch seconds).   ////
+//// ------------------------------------------------------ ////
+
+Table Customers {
+  id INTEGER [pk, increment] // Changed from autoincrement
+  name TEXT [not null]
+  email TEXT [unique]
+  address TEXT
+  created_at INTEGER [default: `strftime('%s', 'now')`, not null, Note: 'Unix epoch timestamp']
+
+  Note: 'Stores customer information'
+}
+
+Table Invoices {
+  id INTEGER [pk, increment] // Changed from autoincrement
+  customer_id INTEGER [not null]
+  invoice_number TEXT [unique, not null, Note: 'e.g., INV-001']
+  issue_date INTEGER [not null, Note: 'Unix epoch timestamp']
+  due_date INTEGER [Note: 'Unix epoch timestamp']
+  total_amount REAL [not null, default: 0.0]
+  status TEXT [not null, default: 'draft', Note: 'e.g., draft, sent, paid, overdue, void']
+  notes TEXT
+  created_at INTEGER [default: `strftime('%s', 'now')`, not null, Note: 'Unix epoch timestamp']
+
+  Indexes {
+    (customer_id)
+    (status)
+    (issue_date)
+  }
+
+  Note: 'Main invoice header information'
+}
+
+Table InvoiceItems {
+  id INTEGER [pk, increment] // Changed from autoincrement
+  invoice_id INTEGER [not null]
+  product_id INTEGER [Note: 'Optional link to a predefined product/service']
+  description TEXT [not null, Note: 'Can be copied from Product or entered manually']
+  quantity REAL [not null, default: 1]
+  unit_price REAL [not null, default: 0.0]
+  line_total REAL [not null, default: 0.0, Note: 'Should be quantity * unit_price']
+
+  Indexes {
+    (invoice_id)
+    (product_id)
+  }
+
+  Note: 'Individual line items for each invoice'
+}
+
+// Optional table for predefined products or services
+Table Products {
+  id INTEGER [pk, increment] // Changed from autoincrement
+  name TEXT [not null, unique]
+  description TEXT
+  default_price REAL [default: 0.0]
+  created_at INTEGER [default: `strftime('%s', 'now')`, not null, Note: 'Unix epoch timestamp']
+
+  Note: 'Optional table for predefined billable items'
+}
+
+//// -------------------- Relationships --------------------- ////
+// Refs must be defined at the top level (outside Table blocks) //
+// Note and ondelete settings removed from Ref lines below    //
+// as they were causing errors in some parsers.               //
+
+// Each invoice belongs to one customer
+Ref InvoiceToCustomer: Invoices.customer_id > Customers.id
+
+// Line items belong to an invoice.
+// Note: The underlying FK should ideally have ON DELETE CASCADE.
+Ref InvoiceItemToInvoice: InvoiceItems.invoice_id > Invoices.id
+
+// Optional link from line item to product
+Ref InvoiceItemToProduct: InvoiceItems.product_id > Products.id
+//// ------------------------------------------------------ ////

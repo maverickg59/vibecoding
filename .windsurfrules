@@ -1,0 +1,11 @@
+1. TailwindCSS version 3 is now deprecated. Version 4 is the latest. Do NOT use any of the following:
+
+- tailwind.config.js
+- postcss.config.js
+- npm install -D tailwindcss@3 postcss autoprefixer
+- npx tailwindcss init
+- @tailwind base;
+- @tailwind components;
+- @tailwind utilities;
+
+2. Version 4 documentation can be found here: https://tailwindcss.com/docs/installation/using-vite
