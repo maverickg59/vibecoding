@@ -2,7 +2,6 @@
 
 ## Technology Stack
 
-- **Database:** Fireproof
 - **Frontend:** React
 - **Build Tool:** Vite
 - **UI Components:** Shadcn
@@ -16,9 +15,6 @@
 ## System Architecture
 
 - Local-first, browser-based application
-- Reactive data management
-- Direct database interaction
-- Decoupled UI and business logic
 
 ## Key Capabilities
 
